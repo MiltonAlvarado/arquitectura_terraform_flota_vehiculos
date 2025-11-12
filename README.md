@@ -30,35 +30,32 @@ terraform apply
 # Respuesta: yes
 ```
 
----
+## Diagrama de Arquitectura
 
-## CAPTURAS
-
-
-
-
-
-
-
-
-
-
-
----
-
-## Organizar Capturas
-
-
-
----
-
-## Agregar Diagrama
-
+##aqui va la captura del diagrama
 
 ```bash
+# Servicios elegidos:
 
 
 ```
+
+
+---
+
+## CAPTURAS del despliegue
+
+## Aqui van las capturas
+
+
+```bash
+# Reflexiones finales
+
+
+```
+
+
+
 
 
 
