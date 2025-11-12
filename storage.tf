@@ -8,12 +8,12 @@ resource "azurerm_storage_account" "saccount" {
 }
 
 resource "azurerm_storage_container" "c1" {
-  name = "imagenes"
+  name                  = "imagenes"
   container_access_type = "private"
-  storage_account_id = azurerm_storage_account.saccount.id
+  storage_account_id    = azurerm_storage_account.saccount.id
 }
 
 resource "azurerm_storage_queue" "q1" {
-  name = "activacionusuarios"
+  name               = "activacionusuarios"
   storage_account_id = azurerm_storage_account.saccount.id
 }

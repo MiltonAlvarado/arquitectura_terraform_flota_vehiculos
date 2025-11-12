@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////
+// Base de datos OLTP para proyecto de Terraform //
+///////////////////////////////////////////////////
+
 resource "azurerm_mssql_server" "sqlserver" {
     name                         = "dbserver-${lower(var.project)}-${var.environment}"
     resource_group_name          = azurerm_resource_group.rg.name
@@ -14,3 +18,6 @@ resource "azurerm_mssql_database" "db" {
   sku_name = "S0"
   tags = var.tags
 }
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////

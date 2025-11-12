@@ -1,3 +1,7 @@
+//////////////////////////////////////////////
+// Variables para proyecto de Terraform     //
+//////////////////////////////////////////////
+
 variable "subscription_id" {
     type = string
     description = "The azure subscription_ID"
@@ -27,10 +31,11 @@ variable "tags" {
     description = "A map of tags to assign to the resource"
     default = {
         environment = "env"
-        date = "oct-2025"
+        date = "Nov-2025"
         createdBy = "Terraform"
     }
 }
+
 
 
 variable "admin_sql_password" {

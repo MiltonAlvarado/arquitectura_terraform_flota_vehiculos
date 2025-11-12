@@ -1,3 +1,5 @@
+// Para guardar imagenes desde Docker
+
 resource "azurerm_container_registry" "acr" {
     name                     = "acr${lower(var.project)}${var.environment}"
     location                 = var.location
