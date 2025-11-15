@@ -1,23 +1,18 @@
-//////////////////////////////////////////////
-// Variables para proyecto de Terraform     //
-//////////////////////////////////////////////
-
 variable "subscription_id" {
     type = string
     description = "The azure subscription_ID"
-    
 }
 
 variable "location" {
     type = string
-    description = "The Azure location where resources will be created"
+    description  = "The Azure location where resources will be created"
     default = "East US 2"
 }
 
 variable "project" {
   type = string
   description = "Name of the project"
-  default = "rentaCarros"
+  default = "rentacarros2"
 }
 
 variable "environment" {
@@ -36,9 +31,19 @@ variable "tags" {
     }
 }
 
-
-
 variable "admin_sql_password" {
   type = string
   description = "A password for sql"
+}
+
+variable "backoffice" {
+  type = string
+  description = "all service backOffice"
+  default = "backoffice"
+}
+
+variable "frontoffice" {
+  type = string
+  description = "all service frontOffice"
+  default = "frontoffice"
 }

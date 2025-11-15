@@ -13,7 +13,7 @@ resource "azurerm_mssql_server" "sqlserver" {
 }
 
 resource "azurerm_mssql_database" "db" {
-  name = "${lower(var.project)}db"
+  name = "${lower(var.project)}db-OLTP"
   server_id = azurerm_mssql_server.sqlserver.id
   sku_name = "S0"
   tags = var.tags

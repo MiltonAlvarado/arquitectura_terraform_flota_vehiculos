@@ -1,6 +1,15 @@
 
-resource "azurerm_service_plan" "sp" {
-    name                = "sp-${var.project}-${var.environment}"
+resource "azurerm_service_plan" "spbackoffice" {
+    name                = "sp-${var.project}-${var.environment}-${var.backoffice}"
+    location            = var.location
+    resource_group_name = azurerm_resource_group.rg.name
+    sku_name            = "B1"
+    os_type             = "Linux"
+    tags                = var.tags
+}
+
+resource "azurerm_service_plan" "spfrontoffice" {
+    name                = "sp-${var.project}-${var.environment}-${var.frontoffice}"
     location            = var.location
     resource_group_name = azurerm_resource_group.rg.name
     sku_name            = "B1"
@@ -15,7 +24,7 @@ resource "azurerm_linux_web_app" "backoffice_ui" {
     name                = "backofficeui-${var.project}-${var.environment}"
     location            = var.location
     resource_group_name = azurerm_resource_group.rg.name
-    service_plan_id     = azurerm_service_plan.sp.id
+    service_plan_id     = azurerm_service_plan.spbackoffice.id
 
     site_config {
         always_on = true
@@ -36,7 +45,7 @@ resource "azurerm_linux_web_app" "backofficeapi" {
     name                = "backofficeapi-${var.project}-${var.environment}"
     location            = var.location
     resource_group_name = azurerm_resource_group.rg.name
-    service_plan_id     = azurerm_service_plan.sp.id
+    service_plan_id     = azurerm_service_plan.spbackoffice.id
 
     site_config {
         always_on = true
@@ -59,7 +68,7 @@ resource "azurerm_linux_web_app" "frontofficeui" {
     name                = "frontofficeui-${var.project}-${var.environment}"
     location            = var.location
     resource_group_name = azurerm_resource_group.rg.name
-    service_plan_id     = azurerm_service_plan.sp.id
+    service_plan_id     = azurerm_service_plan.spfrontoffice.id
 
     site_config {
         always_on = true
@@ -80,7 +89,7 @@ resource "azurerm_linux_web_app" "frontofficeapi" {
     name                = "frontofficeapi-${var.project}-${var.environment}"
     location            = var.location
     resource_group_name = azurerm_resource_group.rg.name
-    service_plan_id     = azurerm_service_plan.sp.id
+    service_plan_id     = azurerm_service_plan.spfrontoffice.id
 
     site_config {
         always_on = true
