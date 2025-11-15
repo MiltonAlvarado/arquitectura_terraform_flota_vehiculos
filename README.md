@@ -3,30 +3,9 @@
 
 Proyecto de infraestructura en Azure utilizando Terraform para la gestión de una flota de vehículos blindados con análisis de datos en tiempo real.
 
----
-
-## 📋 Tabla de Contenidos
-
-- [Descripción del Proyecto](#-descripción-del-proyecto)
-- [Diagrama de Arquitectura](#-diagrama-de-arquitectura)
-- [Justificación de Servicios](#-justificación-de-servicios)
-- [Checklist de Preparación](#-checklist-de-preparación)
-- [Guía de Instalación](#-guía-de-instalación)
-- [Evidencia de Despliegue](#-evidencia-de-despliegue)
-- [Reflexiones Finales](#-reflexiones-finales)
-- [Estimación de Costos](#-estimación-de-costos)
-
----
-
 ## 📖 Descripción del Proyecto
 
 Este proyecto implementa una infraestructura completa en Azure usando Terraform para una empresa de seguridad y logística que lanza una aplicación de renta de vehículos blindados.
-
-### Objetivos
-
-- ✅ Gestionar operaciones en tiempo real: reservas, contratos y estado de la flota  
-- ✅ Permitir analítica avanzada sin afectar las operaciones transaccionales  
-- ✅ Soportar dos cargas de trabajo separadas: **OLTP** (operacional) y **OLAP** (analítica)
 
 ---
 
@@ -36,72 +15,57 @@ Este proyecto implementa una infraestructura completa en Azure usando Terraform 
 
 ---
 
-## 🏛️ Justificación de Servicios
+## 🎯 Justificación de Servicios
 
-### Requisito 1: Base de Datos Transaccional
+### ❓ Pregunta 1: ¿Qué servicio de BD para el Requisito 1 y por qué?
 
-**Servicio:** Azure SQL Database
+**Servicio Seleccionado:** Azure SQL Database
 
-Base de datos relacional completamente administrada con:
-- ✅ Alta disponibilidad (SLA 99.99%)
-- ✅ Escalado automático
-- ✅ Respaldos integrados
-- ✅ Baja latencia para operaciones transaccionales
-- ✅ Ideal para reservas y contratos en tiempo real
+Seleccioné Azure SQL Database porque es una base de datos relacional ideal para gestionar reservas, contratos y vehículos con sus relaciones naturales:
+- Cliente → Reserva → Contrato → Vehículo
 
----
-
-### Requisito 2: Almacenamiento Analítico
-
-**Servicio:** Azure Data Lake Storage Gen2 (ADLS Gen2)
-
-Almacenamiento optimizado para Big Data con:
-- ✅ Soporte nativo para archivos JSON
-- ✅ Particionamiento jerárquico
-- ✅ Alto rendimiento para análisis batch
-- ✅ Integración directa con Databricks y Synapse
-- ✅ Ideal para históricos y telemetría
+**Ventajas principales:**
+- ⚡ Tiempos de respuesta muy rápidos necesarios para operaciones en tiempo real
+- 🔒 Alta disponibilidad del 99.99%
+- 📦 Sencillo de usar comparado con Cosmos DB o PostgreSQL
+- 💪 Rendimiento necesario para miles de transacciones simultáneas
 
 ---
 
-### Requisito 3: Orquestación de Datos
+### ❓ Pregunta 2: ¿Qué servicio de orquestación para el Requisito 3 y por qué es adecuado para batch ETL?
 
-**Servicio:** Azure Data Factory
+**Servicio Seleccionado:** Azure Data Factory
 
-Servicio ETL/ELT serverless que permite:
-- ✅ Pipelines batch programados
-- ✅ Copiar datos de SQL a Data Lake
-- ✅ Transformaciones de datos
-- ✅ Monitoreo integrado
-- ✅ Triggers temporales sin gestionar infraestructura
+Elegí Azure Data Factory porque está diseñado específicamente para mover grandes cantidades de datos de forma programada.
 
----
+**Características clave:**
+- 📅 Programación automática de copias de datos
+- 🌙 Ejecución óptima durante horarios de baja actividad
+- ⚙️ Paralelización automática del trabajo
+- 🔄 Reintentos automáticos ante errores temporales
+- 📊 Monitoreo visual de ejecuciones
+- 🚨 Alertas automáticas ante fallos
+- 🔐 Gestión segura de credenciales mediante Key Vault
 
-### Requisito 4: Plataforma de Análisis
-
-**Servicio:** Azure Databricks
-
-Plataforma de análisis colaborativa con:
-- ✅ Notebooks interactivos
-- ✅ Soporte completo para Apache Spark
-- ✅ Procesamiento de telemetría compleja en JSON
-- ✅ Análisis avanzados de patrones y rentabilidad
-- ✅ Auto-escalado según demanda
+**Comparación:** Es más confiable y requiere menos mantenimiento que scripts manuales.
 
 ---
 
-### Requisito 5: Gestión de Secretos
+### ❓ Pregunta 3: ¿Qué plataforma para el Requisito 4 y por qué es necesaria para telemetría compleja?
 
-**Servicio:** Azure Key Vault
+**Servicio Seleccionado:** Azure Databricks
 
-Almacén seguro centralizado para:
-- ✅ Credenciales
-- ✅ Cadenas de conexión
-- ✅ Secretos de aplicación
-- ✅ Control de acceso mediante RBAC
-- ✅ Auditoría completa
+Seleccioné Azure Databricks porque es la única plataforma capaz de procesar eficientemente los logs JSON complejos.
 
----
+**Características clave:**
+- 🔥 Apache Spark para análisis distribuido
+- 📊 Procesamiento de datos masivos
+- 👥 Notebooks colaborativos para analistas
+- 🎯 Análisis de patrones de uso y mantenimiento
+- 💰 Modelo de pago por uso ($0.44/hora de análisis)
+- 🆓 Workspace gratuito cuando está inactivo
+
+**Comparación:** Más flexible que alternativas como Synapse Spark o HDInsight.
 
 ## 📸 Evidencia de Despliegue
 
@@ -149,58 +113,101 @@ Confirmación visual desde la GUI de Azure:
 
 ## 💭 Reflexiones Finales
 
-### Desafío Mayor: Dependencias Implícitas en Terraform
+### 🔗 Dependencias en la Infraestructura
 
-**Problema identificado:**
+En la infraestructura existe una dependencia directa entre el Data Lake y el Key Vault:
 
-Terraform creó Key Vault antes que SQL Database, pero intentó almacenar el `sql-connection-string` simultáneamente, causando un error:
+**El recurso `azurerm_key_vault_secret.datalake_access_key`** guarda en el Key Vault la clave de acceso de la cuenta de almacenamiento del Data Lake (`azurerm_storage_account.datalake`).
+
+#### Requisitos de creación:
+
+1. **Key Vault** (`azurerm_key_vault.kv`) debe existir antes de poder crear el secreto
+2. **Cuenta de almacenamiento** (`azurerm_storage_account.datalake`) también debe existir antes, porque se obtiene su `primary_access_key`
+
+#### Cómo Terraform maneja esto:
+
+Terraform refleja estas dependencias usando:
+
+- **Referencias a otros recursos:** 
+  - `azurerm_storage_account.datalake.primary_access_key`
+  - `azurerm_key_vault.kv.id`
+
+- **Instrucción explícita:** `depends_on = [azurerm_key_vault.kv]` para asegurar el orden de creación
+
+#### Secuencia de creación implementada:
+
 ```
-Error: secret cannot be created before vault is ready
+1️⃣ Key Vault se crea completamente
+2️⃣ SQL Database se crea
+3️⃣ Secretos se almacenan
 ```
 
-**Solución implementada:**
-
-Se agregó `depends_on = [azurerm_key_vault.kv]` en todos los secretos para forzar la secuencia:
-1. Key Vault se crea completamente
-2. SQL Database se crea
-3. Secretos se almacenan
-
-**Lección aprendida:**
+#### 🎓 Lección aprendida:
 
 Aunque Terraform infiere dependencias de variables (`azurerm_key_vault.kv.id`), las operaciones asíncronas de Azure pueden requerir dependencias explícitas para garantizar que el recurso esté "completamente listo".
 
 ---
 
-### Separación OLTP/OLAP en Alquiler de Vehículos
+### 📊 Separación OLTP vs OLAP
 
-**¿Por qué separar?**
+Separar las cargas OLTP y OLAP en un sistema de alquiler de vehículos es fundamental porque cada tipo de trabajo tiene necesidades muy distintas:
 
-| Aspecto | OLTP (SQL Database) | OLAP (Data Lake + Databricks) |
-|---------|---------------------|-------------------------------|
-| **Tipo de consultas** | Transacciones (INSERT/UPDATE) | Agregaciones complejas (GROUP BY, JOINs) |
-| **Latencia** | Milisegundos | Segundos/minutos |
-| **Volumen de datos** | Registros actuales | Históricos completos |
-| **Usuarios** | Sistema de reservas | Analistas (5-10 usuarios) |
+#### Base de datos transaccional (OLTP):
 
-**Beneficios de la separación:**
-- ✅ Las consultas analíticas no afectan el sistema de reservas
-- ✅ El ETL nocturno copia datos cuando hay bajo tráfico
-- ✅ La app mantiene latencias consistentes < 100ms
-- ✅ Los analistas pueden ejecutar queries largas sin impacto
+- ⚡ Debe responder en milisegundos
+- 🎯 Operaciones críticas: crear reservas, actualizar estado de vehículos, generar contratos
+- ⚠️ Cualquier retraso afecta directamente al cliente y al negocio
 
----
+#### Análisis (OLAP):
 
-## 📊 Estimación de Costos
+- 📈 Consultas pesadas y análisis históricos
+- 📊 Análisis de rentabilidad por tipo de vehículo o zona
+- 🔍 Patrones de uso y estadísticas de mantenimiento
+- 🔄 Muchas agregaciones y joins complejos
 
-Recursos corriendo 24/7:
+#### ⚠️ Problema de mezclarlas:
 
-| Servicio | Tier | Costo Mensual |
-|----------|------|--------------|
-| SQL Database | S0 (10 DTU) | ~$15 USD |
-| Storage Account | Standard LRS | ~$5 USD |
-| Data Factory | Básico | ~$1 USD |
-| Databricks | Sin cluster activo | ~$0 USD |
-| Key Vault | Standard | ~$1 USD |
-| **TOTAL** | - | **~$22 USD/mes** |
+Si ambas cargas se ejecutan sobre la misma base, las consultas analíticas compiten por:
+- CPU
+- Memoria
+- Disco
+
+Esto genera:
+- 🔒 Bloqueos
+- ⏱️ Tiempos de espera
+- 📉 Degradación general del rendimiento
 
 ---
+
+### 🤖 Orquestación vs Scripts Manuales
+
+La diferencia principal entre usar un servicio de orquestación y scripts manuales programados está en:
+
+#### Fiabilidad:
+
+- 🔄 Reintentos automáticos
+- 🚨 Manejo de errores integrado
+- 📋 Logging automático
+
+#### Trazabilidad:
+
+- 📊 Reportes detallados de cada ejecución
+- 🔍 Auditoría completa del proceso
+- 📈 Métricas de desempeño
+
+#### Mantenimiento:
+
+- 🛠️ Actualizaciones automáticas
+- 📞 Soporte técnico integrado
+- 🔐 Seguridad gestionada
+
+#### Funcionalidades de orquestación:
+
+Un servicio de orquestación permite:
+- 🔗 Definir pasos encadenados (OLTP → Transformación → OLAP)
+- 🎯 Gestionar dependencias entre pasos
+- 🔄 Configurar reintentos automáticos ante fallos
+- 📊 Generar alertas y reportes detallados
+
+
+
